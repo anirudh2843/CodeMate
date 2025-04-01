@@ -3,6 +3,7 @@ const connectDB = require("./config/database");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+require("dotenv").config();
 
 app.use(
   cors({
@@ -18,6 +19,9 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 
+const PORT=process.env.PORT;
+
+
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
@@ -26,8 +30,8 @@ app.use("/", userRouter);
 connectDB()
   .then(() => {
     console.log("connection successfull");
-    app.listen(3333, () => {
-      console.log("server is successfully listenning  on port  ");
+    app.listen(PORT, () => {
+      console.log(`server is successfully listenning  on ${PORT}`);
     });
   })
   .catch((err) => {
