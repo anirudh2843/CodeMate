@@ -19,8 +19,7 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 
-const PORT=process.env.PORT;
-
+const PORT = process.env.PORT;
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
@@ -37,3 +36,5 @@ connectDB()
   .catch((err) => {
     console.log("connection failed");
   });
+
+module.exports = app;
