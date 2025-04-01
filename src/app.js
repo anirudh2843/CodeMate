@@ -8,8 +8,7 @@ require("dotenv").config();
 app.use(
   cors({
     origin: "https://code-mate-web.vercel.app",
-    methods:["GET", "POST", "PATCH"],
-    allowedHeaders :["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 app.use(express.json());
