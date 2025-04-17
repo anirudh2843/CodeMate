@@ -7,7 +7,7 @@ require("dotenv").config();
 
 app.use(
   cors({
-    origin: "https://code-mate-web.vercel.app",
+    origin: "https://codemate-web.onrender.com",
     credentials: true,
   })
 );
