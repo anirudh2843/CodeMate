@@ -23,26 +23,20 @@ authRouter.post("/signup", async (req, res) => {
     const token = await savedUser.getJWT();
 
     // add token to cookie and send response to user
-    res.cookie("token", token, {
-      httpOnly: true,          // Make sure only the server can access the cookie
-      secure: true,            // Use only HTTPS to transfer the cookie (required in production)
-      sameSite: "None",        // Necessary for cross-origin requests
-      expires: new Date(Date.now() + 8 * 3600000), // Cookie expiration (8 hours)
-    });
-    res.json({ message: "User added successfully", data: savedUser });
+    res.cookie("token", token, { expires: new Date(Date.now() + 8 * 3600000) });
+    res.json({ message: "user added successsfully", data: savedUser });
   } catch (err) {
-    res.status(400).send("Error: " + err.message);
+    res.status(400).send("Error  :" + err.message);
   }
 });
-
 
 authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
 
-    const user = await User.findOne({ emailId });
+    const user = await User.findOne({ emailId: emailId });
     if (!user) {
-      return res.status(400).send("Invalid Credentials!");
+      return res.status(400).send("Invalid Credentials!!!");
     }
 
     const isPasswordValid = await user.validatePassword(password);
@@ -52,10 +46,7 @@ authRouter.post("/login", async (req, res) => {
 
       // add token to cookie and send response to user
       res.cookie("token", token, {
-        httpOnly: true,         // Ensure that the cookie is accessible only by the server
-        secure: true,           // Cookie will only be sent over HTTPS
-        sameSite: "None",       // Important for cross-origin requests
-        expires: new Date(Date.now() + 8 * 3600000), // Cookie expiration (8 hours)
+        expires: new Date(Date.now() + 8 * 3600000),
       });
       res.send(user);
     } else {
@@ -65,7 +56,6 @@ authRouter.post("/login", async (req, res) => {
     res.status(500).send({ message: "Login Failed", error: err.message });
   }
 });
-
 
 
 authRouter.post("/logout", async (req, res) => {
