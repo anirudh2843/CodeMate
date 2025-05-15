@@ -9,7 +9,7 @@ require("dotenv").config();
 
 app.use(
   cors({
-    origin: "http://localhost:5174",
+    origin: "https://codemate-web.onrender.com",
     credentials: true,
   })
 );
