@@ -6,11 +6,13 @@ const cors = require("cors");
 const http = require("http");
 const initializeSocket = require("./utils/socket");
 require("dotenv").config();
+app.use(cookieParser());
 
 const allowedOrigins = [
   "http://localhost:5173",
   "https://codemate-web.onrender.com",
   "https://code-mate-web.vercel.app",
+  "https://codemate-2.vercel.app",
 ];
 
 app.use(
@@ -26,7 +28,6 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(cookieParser());
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");

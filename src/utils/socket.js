@@ -13,13 +13,12 @@ const getSecretRoomId = (userId, targetUserId) => {
 const initializeSocket = (server) => {
   const io = socket(server, {
     cors: {
-      origin: "http://localhost:5174", // Update this to your frontend domain in prod
+      origin: "http://localhost:5173", // Update this to your frontend domain in prod
       credentials: true,
     },
   });
 
   io.on("connection", (socket) => {
-
     // Join a secret room based on the user pair
     socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
       const roomId = getSecretRoomId(userId, targetUserId);
