@@ -7,9 +7,21 @@ const http = require("http");
 const initializeSocket = require("./utils/socket");
 require("dotenv").config();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://codemate-web.onrender.com",
+  "https://code-mate-web.vercel.app",
+];
+
 app.use(
   cors({
-    origin: "https://codemate-web.onrender.com",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
