@@ -18,6 +18,10 @@ chatRouter.get("/chat/:targetUserId", userAuth, async (req, res) => {
         participants: [userId, targetUserId],
         messages: [],
       });
+      chat.messages.push({
+        senderId,
+        text,
+      });
       await chat.save();
     }
     res.json(chat);
