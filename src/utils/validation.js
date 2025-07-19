@@ -12,6 +12,9 @@ const validateSignUpData = (req) => {
 };
 
 const validateEditProfileData = (req) => {
+  const { firstName, lastName, emailId, photoUrl, gender, age, about, skills } =
+    req.body;
+
   const allowedEditFields = [
     "firstName",
     "lastName",
@@ -23,6 +26,21 @@ const validateEditProfileData = (req) => {
     "skills",
   ];
 
+  // Optional: Validate presence of at least one valid field
+  const hasValidFields = [
+    firstName,
+    lastName,
+    emailId,
+    photoUrl,
+    gender,
+    age,
+    about,
+    skills,
+  ].some((val) => val !== undefined);
+
+  if (!hasValidFields) return false;
+
+  // Check if all fields in the body are allowed
   const isEditAllowed = Object.keys(req.body).every((field) =>
     allowedEditFields.includes(field)
   );
