@@ -44,7 +44,8 @@ app.use("/", userRouter);
 app.use("/", chatRouter);
 
 const server = http.createServer(app);
-initializeSocket(server);
+const io = initializeSocket(server);
+app.set("io", io);
 
 connectDB()
   .then(() => {

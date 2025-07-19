@@ -13,7 +13,10 @@ const getSecretRoomId = (userId, targetUserId) => {
 const initializeSocket = (server) => {
   const io = socket(server, {
     cors: {
-      origin: "http://localhost:5173", // Update this to your frontend domain in prod
+      origin: [
+        "http://localhost:5173", // Local dev
+        "https://codemate-web.onrender.com", // Production
+      ],
       credentials: true,
     },
   });
@@ -27,46 +30,51 @@ const initializeSocket = (server) => {
     });
 
     // Handle incoming message
-    socket.on(
-      "sendMessage",
-      async ({ firstName, lastName, userId, targetUserId, text }) => {
-        const roomId = getSecretRoomId(userId, targetUserId);
-        console.log(`${firstName} ${lastName} sent: ${text}`);
+    // socket.on(
+    //   "sendMessage",
+    //   async ({ firstName, lastName, userId, targetUserId, text }) => {
+    //     const roomId = getSecretRoomId(userId, targetUserId);
+    //     console.log(`${firstName} ${lastName} sent: ${text}`);
 
-        try {
-          // Check if a chat already exists
-          let chat = await Chat.findOne({
-            participants: { $all: [userId, targetUserId] },
-          });
+    //     try {
+    //       // Check if a chat already exists
+    //       let chat = await Chat.findOne({
+    //         participants: { $all: [userId, targetUserId] },
+    //       });
 
-          // If not, create one
-          if (!chat) {
-            chat = new Chat({
-              participants: [userId, targetUserId],
-              messages: [],
-            });
-          }
+    //       // If not, create one
+    //       if (!chat) {
+    //         chat = new Chat({
+    //           participants: [userId, targetUserId],
+    //           messages: [],
+    //         });
+    //       }
 
-          // Append the message
-          chat.messages.push({
-            senderId: userId,
-            text,
-            timestamp: new Date(),
-          });
+    //       // Append the message
+    //       chat.messages.push({
+    //         senderId: userId,
+    //         text,
+    //         timestamp: new Date(),
+    //       });
 
-          // Save updated chat
-          await chat.save();
+    //       // Save updated chat
+    //       await chat.save();
 
-          // Emit message to both users in room
-          io.to(roomId).emit("messageReceived", { firstName, lastName, text });
-        } catch (err) {
-          console.error("Error saving message:", err);
-        }
-      }
-    );
+    //       // Emit message to both users in room
+    //       io.to(roomId).emit("messageReceived", { firstName, lastName, text });
+    //     } catch (err) {
+    //       console.error("Error saving message:", err);
+    //     }
+    //   }
+    // );
+    socket.on("typing", ({ userId, targetUserId, isTyping }) => {
+      const roomId = getSecretRoomId(userId, targetUserId);
+      socket.to(roomId).emit("userTyping", { userId, isTyping });
+    });
 
     socket.on("disconnect", () => {});
   });
+  return io;
 };
 
 module.exports = initializeSocket;
