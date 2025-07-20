@@ -4,7 +4,7 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const http = require("http");
-const initializeSocket = require("./utils/socket");
+const { initializeSocket } = require("./utils/socket");
 require("dotenv").config();
 app.use(cookieParser());
 

@@ -1,8 +1,10 @@
 const express = require("express");
-const userAuth = require("../middleWares/auth");
-const { path } = require("../app");
+const userAuth = require("../middlewares/auth");
 const chatRouter = express.Router();
 const { Chat } = require("../models/chat");
+const User = require("../models/user");
+const sendEmail = require("../utils/sendEmail");
+const { onlineUsers } = require("../utils/socket");
 
 chatRouter.post("/chat/:targetUserId", userAuth, async (req, res) => {
   const { targetUserId } = req.params;
@@ -47,6 +49,25 @@ chatRouter.post("/chat/:targetUserId", userAuth, async (req, res) => {
         createdAt: lastMessage.createdAt,
         senderId: lastMessage.senderId._id.toString(),
       });
+    }
+
+    if (!onlineUsers.has(targetUserId)) {
+      console.log("📩 Target User ID:", targetUserId);
+
+      const recipient = await User.findById(targetUserId);
+      console.log("👤 Recipient user object:", recipient);
+
+      const sender = await User.findById(senderId);
+
+      if (recipient?.emailId) {
+        console.log(`📧 Attempting to send email to: ${recipient.email}`);
+        await sendEmail(recipient.emailId, "New Message on CodeMate", {
+          senderName: `${sender.firstName} ${sender.lastName}`,
+          message: text,
+        });
+      } else {
+        console.log("❌ Recipient email not found");
+      }
     }
 
     res.status(200).json(updatedChat);

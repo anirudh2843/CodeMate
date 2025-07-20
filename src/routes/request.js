@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const requestRouter = express.Router();
-const userAuth = require("../middleWares/auth");
+const userAuth = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
@@ -59,7 +59,7 @@ requestRouter.post(
 requestRouter.post(
   "/request/review/:status/:requestId",
   userAuth,
-  async (req, res) => { 
+  async (req, res) => {
     try {
       // Validate the status
       const loggedInUser = req.user;

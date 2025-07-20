@@ -1,7 +1,7 @@
 const express = require("express");
 const userRouter = express.Router();
 
-const userAuth = require("../middleWares/auth");
+const userAuth = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
@@ -59,7 +59,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
 
     const page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
-    limit=limit>50 ? 50: limit;
+    limit = limit > 50 ? 50 : limit;
     const skip = (page - 1) * limit;
 
     // find all the connection requests(sent+rececived)

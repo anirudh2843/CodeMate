@@ -1,6 +1,6 @@
 const socket = require("socket.io");
 const crypto = require("crypto"); // FIXED typo: "croypto" -> "crypto"
-const { Chat } = require("../models/chat");
+const onlineUsers = new Set();
 
 // Generate a consistent room ID for a pair of users
 const getSecretRoomId = (userId, targetUserId) => {
@@ -25,7 +25,9 @@ const initializeSocket = (server) => {
     // Join a secret room based on the user pair
     socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
       const roomId = getSecretRoomId(userId, targetUserId);
-      console.log(`${firstName} joined room: ${roomId}`);
+      socket.userId = userId;
+      onlineUsers.add(userId);
+      console.log(`${userId} User Id Name ${firstName} joined room: ${roomId}`);
       socket.join(roomId);
     });
 
@@ -72,9 +74,11 @@ const initializeSocket = (server) => {
       socket.to(roomId).emit("userTyping", { userId, isTyping });
     });
 
-    socket.on("disconnect", () => {});
+    socket.on("disconnect", () => {
+      onlineUsers.delete(socket.userId);
+    });
   });
   return io;
 };
 
-module.exports = initializeSocket;
+module.exports = { initializeSocket, onlineUsers };
