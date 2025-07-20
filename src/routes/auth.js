@@ -41,28 +41,36 @@ authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
 
-    const user = await User.findOne({ emailId: emailId });
+    const user = await User.findOne({ emailId });
     if (!user) {
-      return res.status(400).send("Invalid Credentials!!!");
+      return res.status(404).json({ message: "Account doesn't exist" });
     }
 
     const isPasswordValid = await user.validatePassword(password);
-    if (isPasswordValid) {
-      // create token
-      const token = await user.getJWT();
-
-      // add token to cookie and send response to user
-      // res.cookie("token", token, {
-      //   expires: new Date(Date.now() + 8 * 3600000),
-      // });
-      res.status(200).json({ token, user });
-
-      // res.send(user);
-    } else {
-      throw new Error("Invalid Credentials");
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid password" });
     }
+
+    const token = await user.getJWT();
+
+    // add token to cookie and send response to user
+    // res.cookie("token", token, {
+    //   expires: new Date(Date.now() + 8 * 3600000),
+    // });
+    return res.status(200).json({
+      token,
+      data: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailId: user.emailId,
+      },
+    });
   } catch (err) {
-    res.status(500).send({ message: "Login Failed", error: err.message });
+    console.error("Login Error:", err);
+    return res
+      .status(500)
+      .json({ message: "Login failed", error: err.message });
   }
 });
 
