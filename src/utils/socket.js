@@ -1,6 +1,6 @@
 const socket = require("socket.io");
 const crypto = require("crypto"); // FIXED typo: "croypto" -> "crypto"
-const onlineUsers = new Set();
+const onlineUsers = new Set(); 
 
 // Generate a consistent room ID for a pair of users
 const getSecretRoomId = (userId, targetUserId) => {
@@ -29,6 +29,8 @@ const initializeSocket = (server) => {
       onlineUsers.add(userId);
       console.log(`${userId} User Id Name ${firstName} joined room: ${roomId}`);
       socket.join(roomId);
+      // Notify all clients about online users
+      io.emit("onlineUsers", Array.from(onlineUsers));
     });
 
     // Handle incoming message
@@ -75,7 +77,11 @@ const initializeSocket = (server) => {
     });
 
     socket.on("disconnect", () => {
-      onlineUsers.delete(socket.userId);
+      console.log(`User ${socket.userId} disconnected`);
+      if (socket.userId) {
+        onlineUsers.delete(socket.userId); // Remove from Set
+        io.emit("onlineUsers", Array.from(onlineUsers)); // Update clients
+      }
     });
   });
   return io;

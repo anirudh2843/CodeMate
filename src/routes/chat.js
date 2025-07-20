@@ -51,22 +51,25 @@ chatRouter.post("/chat/:targetUserId", userAuth, async (req, res) => {
       });
     }
 
+    // Send email if user is offline
     if (!onlineUsers.has(targetUserId)) {
-      console.log("📩 Target User ID:", targetUserId);
+      const now = Date.now();
+      const ONE_HOUR = 60 * 60 * 1000;
 
       const recipient = await User.findById(targetUserId);
-      console.log("👤 Recipient user object:", recipient);
-
       const sender = await User.findById(senderId);
 
-      if (recipient?.emailId) {
-        console.log(`📧 Attempting to send email to: ${recipient.email}`);
+      const alreadySentRecently =
+        chat.lastEmailSent && now - chat.lastEmailSent.getTime() < ONE_HOUR;
+
+      if (!alreadySentRecently && recipient?.emailId) {
         await sendEmail(recipient.emailId, "New Message on CodeMate", {
           senderName: `${sender.firstName} ${sender.lastName}`,
           message: text,
         });
-      } else {
-        console.log("❌ Recipient email not found");
+
+        chat.lastEmailSent = new Date();
+        await chat.save();
       }
     }
 

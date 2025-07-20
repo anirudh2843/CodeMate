@@ -24,7 +24,7 @@ const sendEmail = async (to, subject, { senderName, message }) => {
         </p>
         <div style="text-align: center; margin-top: 30px;">
           <a href="https://codemate-web.onrender.com/" style="padding: 12px 20px; background-color: #4e73df; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
-            💬 Open Chat
+             Open Chat
           </a>
         </div>
         <p style="font-size: 12px; color: #aaa; text-align: center; margin-top: 40px;">
@@ -47,7 +47,7 @@ const sendEmail = async (to, subject, { senderName, message }) => {
     const info = await transporter.sendMail(mailOptions);
     console.log("✅ Email sent:", info.response);
   } catch (error) {
-    console.error("❌ Email failed:", error);
+    console.error(" Email failed:", error);
   }
 };
 

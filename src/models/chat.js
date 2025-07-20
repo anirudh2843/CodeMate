@@ -11,10 +11,6 @@ const messageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    read: {
-      type: Boolean,
-      default: false,
-    },
   },
   { timestamps: true }
 );
@@ -26,6 +22,7 @@ const chatSchema = new mongoose.Schema({
   senderId: {},
   receiverId: {},
   messages: [messageSchema],
+  lastEmailSent: { type: Date },
 });
 const Chat = mongoose.model("Chat", chatSchema);
 
