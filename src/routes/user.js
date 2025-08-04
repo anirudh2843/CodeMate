@@ -26,6 +26,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
 userRouter.get("/user/connections", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
+
     const connectionRequest = await ConnectionRequest.find({
       $or: [
         { toUserId: loggedInUser._id, status: "accepted" },
@@ -35,14 +36,20 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       .populate("fromUserId", USER_SAFE_DATA)
       .populate("toUserId", USER_SAFE_DATA);
 
-    const data = connectionRequest.map((row) => {
-      if (row.fromUserId._id.toString() == loggedInUser._id.toString()) {
-        return row.toUserId;
-      }
-      return row.fromUserId;
-    });
+    console.log("Fetched Connection Requests:", connectionRequest);
+
+    const data = connectionRequest
+      .filter((row) => row.fromUserId && row.toUserId) // ✅ Remove rows with null references
+      .map((row) => {
+        if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
+          return row.toUserId;
+        }
+        return row.fromUserId;
+      });
+
     res.json({ data });
   } catch (err) {
+    console.error("Error in /user/connections:", err.message);
     res.status(400).send({ message: err.message });
   }
 });

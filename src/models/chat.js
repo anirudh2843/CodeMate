@@ -9,8 +9,9 @@ const messageSchema = new mongoose.Schema(
     },
     text: {
       type: String,
-      required: true,
     },
+    path: String,
+    filename: String,
   },
   { timestamps: true }
 );

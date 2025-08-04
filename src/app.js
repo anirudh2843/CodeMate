@@ -7,6 +7,8 @@ const http = require("http");
 const { initializeSocket } = require("./utils/socket");
 require("dotenv").config();
 app.use(cookieParser());
+const path = require("path");
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -55,7 +57,7 @@ connectDB()
     });
   })
   .catch((err) => {
-    console.log("connection failed");
+    console.log("connection failed:", { err });
   });
 
 module.exports = app;

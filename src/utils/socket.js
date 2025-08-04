@@ -1,8 +1,10 @@
 const socket = require("socket.io");
-const crypto = require("crypto"); // FIXED typo: "croypto" -> "crypto"
-const onlineUsers = new Set(); 
+const crypto = require("crypto");
+const onlineUsers = new Set();
+const { Chat } = require("../models/chat");
+const User = require("../models/user"); // ✅ FIX
 
-// Generate a consistent room ID for a pair of users
+// Generate consistent room ID
 const getSecretRoomId = (userId, targetUserId) => {
   return crypto
     .createHash("sha256")
@@ -22,69 +24,43 @@ const initializeSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    // Join a secret room based on the user pair
+    console.log("✅ New client connected:", socket.id);
+
+    // Join chat room
     socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
       const roomId = getSecretRoomId(userId, targetUserId);
       socket.userId = userId;
-      onlineUsers.add(userId);
-      console.log(`${userId} User Id Name ${firstName} joined room: ${roomId}`);
+      socket.roomId = roomId;
+
       socket.join(roomId);
-      // Notify all clients about online users
+      onlineUsers.add(userId);
+
+      console.log(`👤 ${firstName} (${userId}) joined room: ${roomId}`);
       io.emit("onlineUsers", Array.from(onlineUsers));
     });
 
-    // Handle incoming message
-    // socket.on(
-    //   "sendMessage",
-    //   async ({ firstName, lastName, userId, targetUserId, text }) => {
-    //     const roomId = getSecretRoomId(userId, targetUserId);
-    //     console.log(`${firstName} ${lastName} sent: ${text}`);
-
-    //     try {
-    //       // Check if a chat already exists
-    //       let chat = await Chat.findOne({
-    //         participants: { $all: [userId, targetUserId] },
-    //       });
-
-    //       // If not, create one
-    //       if (!chat) {
-    //         chat = new Chat({
-    //           participants: [userId, targetUserId],
-    //           messages: [],
-    //         });
-    //       }
-
-    //       // Append the message
-    //       chat.messages.push({
-    //         senderId: userId,
-    //         text,
-    //         timestamp: new Date(),
-    //       });
-
-    //       // Save updated chat
-    //       await chat.save();
-
-    //       // Emit message to both users in room
-    //       io.to(roomId).emit("messageReceived", { firstName, lastName, text });
-    //     } catch (err) {
-    //       console.error("Error saving message:", err);
-    //     }
-    //   }
-    // );
+    // Typing indicator
     socket.on("typing", ({ userId, targetUserId, isTyping }) => {
       const roomId = getSecretRoomId(userId, targetUserId);
       socket.to(roomId).emit("userTyping", { userId, isTyping });
     });
 
-    socket.on("disconnect", () => {
-      console.log(`User ${socket.userId} disconnected`);
+    // ✅ Disconnect handler (FIXED)
+    socket.on("disconnect", async () => {
+      console.log(`❌ User ${socket.userId} disconnected`);
       if (socket.userId) {
-        onlineUsers.delete(socket.userId); // Remove from Set
-        io.emit("onlineUsers", Array.from(onlineUsers)); // Update clients
+        onlineUsers.delete(socket.userId);
+        io.emit("onlineUsers", Array.from(onlineUsers));
+        try {
+          await User.findByIdAndUpdate(socket.userId, { lastActive: new Date() });
+        } catch (err) {
+          console.error("Error updating lastActive:", err.message);
+        }
       }
     });
   });
+
   return io;
 };
 
-module.exports = { initializeSocket, onlineUsers };
+module.exports = { initializeSocket, onlineUsers, getSecretRoomId };
