@@ -1,6 +1,11 @@
-node_modules
+# Node modules
+node_modules/
 
-.vercel
-
+# Environment files
 .env
-/uploads
+
+# Build/deployment
+.vercel/
+
+# Uploaded files
+/uploads/

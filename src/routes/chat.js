@@ -59,12 +59,15 @@ chatRouter.post(
       }).populate({ path: "messages.senderId", select: "firstName lastName" });
 
       if (!chat) {
-        return res.json({ messages: [] });
+        chat = new Chat({
+          participants: sortedParticipants,
+          messages: [],
+        });
       }
 
       // Save new message
       const message = {
-        senderId: mongoose.Types.ObjectId(senderId),
+        senderId,
         text: text || "",
         path: req.file ? `/uploads/${req.file.filename}` : null,
         filename: req.file?.filename || "",
