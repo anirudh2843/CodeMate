@@ -1,7 +1,6 @@
 const socket = require("socket.io");
 const crypto = require("crypto");
 const onlineUsers = new Set();
-const { Chat } = require("../models/chat");
 const User = require("../models/user"); // ✅ FIX
 
 // Generate consistent room ID
@@ -24,12 +23,12 @@ const initializeSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("✅ New client connected:", socket.id);
 
     // Join chat room
     socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
       const roomId = getSecretRoomId(userId, targetUserId);
       socket.userId = userId;
+      socket.join(userId);
       socket.roomId = roomId;
 
       socket.join(roomId);

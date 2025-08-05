@@ -36,7 +36,6 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       .populate("fromUserId", USER_SAFE_DATA)
       .populate("toUserId", USER_SAFE_DATA);
 
-    console.log("Fetched Connection Requests:", connectionRequest);
 
     const data = connectionRequest
       .filter((row) => row.fromUserId && row.toUserId) // ✅ Remove rows with null references
@@ -49,7 +48,6 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 
     res.json({ data });
   } catch (err) {
-    console.error("Error in /user/connections:", err.message);
     res.status(400).send({ message: err.message });
   }
 });

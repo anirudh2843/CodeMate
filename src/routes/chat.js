@@ -33,7 +33,6 @@ chatRouter.get("/user/:id", userAuth, async (req, res) => {
       "firstName lastName emailId"
     );
     if (!user) {
-      console.warn(`⚠️ User ${req.params.id} not found.`);
       return res.status(200).json({
         _id: req.params.id,
         firstName: "Unknown",
@@ -57,8 +56,6 @@ chatRouter.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      console.log("Incoming message:", req.body);
-      console.log("Uploaded file:", req.file);
       const { targetUserId } = req.params;
       const senderId = req.user._id;
       const { text } = req.body;
@@ -84,7 +81,6 @@ chatRouter.post(
         text: text || "",
       };
       if (req.file) {
-        console.log("File received:", req.file);
         message.image = {
           data: req.file.buffer,
           contentType: req.file.mimetype,
@@ -99,17 +95,11 @@ chatRouter.post(
       const isUserOffline = !onlineUsers.has(targetUserId);
 
       if (isUserOffline) {
-        console.log("📧 User is offline:", targetUserId);
-
         const recipient = await User.findById(targetUserId);
         const sender = await User.findById(senderId);
 
         const alreadySent =
-          chat.lastEmailSent && now - chat.lastEmailSent.getTime() < ONE_HOUR; // ✅ Moved here
-
-        console.log("Recipient Email:", recipient?.emailId);
-        console.log("Sender Name:", `${sender.firstName} ${sender.lastName}`);
-        console.log("Last Email Sent:", chat.lastEmailSent);
+          chat.lastEmailSent && now - chat.lastEmailSent.getTime() < ONE_HOUR; // ✅ Moved her
 
         if (!alreadySent && recipient?.emailId) {
           await sendEmail(recipient.emailId, "New Message on CodeMate", {
@@ -145,6 +135,12 @@ chatRouter.post(
       if (io) {
         const roomId = getSecretRoomId(senderId.toString(), targetUserId);
         io.to(roomId).emit("messageReceived", payload);
+        
+        io.to(targetUserId.toString()).emit("messageNotification", {
+          senderId: payload.senderId,
+          senderName: `${payload.firstName} ${payload.lastName}`,
+          message: payload.text || "📷 Image",
+        });
       }
 
       return res.status(200).json(updatedChat);
