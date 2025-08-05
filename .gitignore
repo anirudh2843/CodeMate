@@ -7,5 +7,4 @@ node_modules/
 # Build/deployment
 .vercel/
 
-# Uploaded files
-/uploads/
+

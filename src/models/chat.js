@@ -10,8 +10,10 @@ const messageSchema = new mongoose.Schema(
     text: {
       type: String,
     },
-    path: String,
-    filename: String,
+    image: {
+      data: Buffer,
+      contentType: String,
+    },
   },
   { timestamps: true }
 );
